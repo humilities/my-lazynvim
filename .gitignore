@@ -1,0 +1,21 @@
+tt.*
+.tests
+doc/tags
+debug
+.repro
+foo.*
+*.log
+data
+
+# Ignore lazy.nvim plugin downloads
+/lazy-lock.json
+/lazy-repo.txt
+
+# Ignore Neovim's local data/state (if you accidentally copy them)
+.netrwhist
+undo/
+/backups/
+/swaps/
+
+# OS specific
+.DS_Store
