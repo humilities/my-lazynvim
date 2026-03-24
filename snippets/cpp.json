@@ -1,0 +1,28 @@
+{
+  "C++ Boilerplate": {
+    "prefix": "code",
+    "body": [
+      "#include <bits/stdc++.h>",
+      "",
+      "using namespace std;",
+      "",
+      "void solve() {",
+      "  $0",
+      "}",
+      "int main()",
+      "{",
+      "\tios_base::sync_with_stdio(false);",
+      "\tcin.tie(NULL);",
+      "",
+      "\tint t;",
+      "\tcin >> t;",
+      "",
+      "\twhile (t--)",
+      "    solve();",
+      "",
+      "\treturn 0;",
+      "}"
+    ],
+    "description": "Standard competitive programming boilerplate"
+  }
+}

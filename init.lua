@@ -70,5 +70,11 @@ vim.keymap.set("n", "<leader>nh", ":nohlsearch<CR>", { desc = "No highlight" })
 -- <Leader>e 打开文件树 (如果你装了 nvim-tree 或 neo-tree)
 vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>")
 
+-- 全选并进入普通模式
+vim.keymap.set("n", "<C-a>", "ggVG")
+
+-- 如果你也想在插入模式下使用
+vim.keymap.set("i", "<C-a>", "<Esc>ggVG")
+
 -- bootstrap lazy.nvim, LazyVim and your plugins
 require("config.lazy")
