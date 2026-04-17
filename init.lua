@@ -39,22 +39,66 @@ vim.keymap.set("n", "<leader>r", function()
     output_path
   )
 
-  -- 组合最终指令
-  local final_cmd = string.format(
-    "12split | term zsh -c \"%s; echo ''; print -n '--- [Finished] Press any key to exit ---'; read -k 1\"",
-    compile_run_cmd
-  )
+  -- 1. 创建一个临时的浮动窗口
+  local buf = vim.api.nvim_create_buf(false, true) -- 创建一个不关联文件的 buffer
+  --local width = math.floor(vim.o.columns * 0.8)
+  -- 2. 精确计算右下角坐标
+  -- 宽度占 35%，高度占 60%（可以根据写题习惯微调）
+  local width = math.floor(vim.o.columns * 0.35)
+  local height = math.floor(vim.o.lines * 0.6)
 
-  -- 执行命令
-  vim.cmd(final_cmd)
+  -- 计算起始位置：总行/列数 - 窗口高/宽 - 留出的边距
+  local row = vim.o.lines - height - 3 -- 距离底部留 3 行（给状态栏留位置）
+  local col = vim.o.columns - width - 2 -- 距离右边留 2 列
+  --local row = math.floor((vim.o.lines - height) / 2)
+  --local col = math.floor((vim.o.columns - width) / 2)
 
-  -- 【关键优化】
-  -- 使用 schedule 确保在终端窗口完全渲染后，自动进入插入模式(Insert Mode)
-  -- 这样你一按 <leader>r，就可以直接 Ctrl+Shift+V 粘贴或者直接打字
-  vim.defer_fn(function()
-    vim.cmd("startinsert")
-  end, 50)
-end, { desc = "Clang++ Compile & Interactive Run" })
+  local win = vim.api.nvim_open_win(buf, true, {
+    relative = "editor",
+    width = width,
+    height = height,
+    row = row,
+    col = col,
+    style = "minimal",
+    border = "rounded",
+  })
+
+  -- 2. 在浮动窗口里启动终端并运行命令
+  -- 运行完后按任意键，窗口会自动关闭 (通过 nvim_win_close)
+  vim.fn.termopen('zsh -c "' .. compile_run_cmd .. '"', {
+    on_exit = function()
+      -- 任务结束后，只要在窗口里按任意键（因为命令里有 read），手动关闭即可
+      -- 或者你可以取消下面这行的注释来实现“运行完自动关窗”
+      -- vim.api.nvim_win_close(win, true)
+    end,
+  })
+
+  -- 在该 buffer 中设置局部快捷键：按 q 直接关闭窗口
+  vim.keymap.set("n", "q", function()
+    if vim.api.nvim_win_is_valid(win) then
+      vim.api.nvim_win_close(win, true)
+    end
+  end, { buffer = buf, silent = true })
+
+  -- 3. 自动进入插入模式，方便你直接粘贴测试样例
+  vim.cmd("startinsert")
+end, { desc = "Clang++ Compile & Run (Native Float)" })
+-- 组合最终指令
+--local final_cmd = string.format(
+--  "12split | term zsh -c \"%s; echo ''; print -n '--- [Finished] Press any key to exit ---'; read -k 1\"",
+--  compile_run_cmd
+--)
+
+-- 执行命令
+--vim.cmd(final_cmd)
+
+-- 【关键优化】
+-- 使用 schedule 确保在终端窗口完全渲染后，自动进入插入模式(Insert Mode)
+-- 这样你一按 <leader>r，就可以直接 Ctrl+Shift+V 粘贴或者直接打字
+--vim.defer_fn(function()
+--  vim.cmd("startinsert")
+--end, 50)
+--end, { desc = "Clang++ Compile & Interactive Run" })
 
 -- 直接跳转到指定编号的 Tab (Alt + 1~9)
 for i = 1, 9 do
